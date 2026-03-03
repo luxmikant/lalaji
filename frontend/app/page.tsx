@@ -2,21 +2,21 @@
 
 import { useState, FormEvent } from "react";
 
-// â”€â”€ Seed data catalogue (mirrors DB migrations/000002_seed_data.up.sql) â”€â”€â”€â”€â”€â”€
+// -- Seed data catalogue (mirrors DB migrations/000002_seed_data.up.sql) ------
 
 const SELLERS = [
-  { id: 1, name: "Nestle India Distributor",  owner: "Rahul Mehta",   city: "Bengaluru",  state: "Karnataka",    emoji: "\u{1F3ED}", tag: "FMCG",        tagColor: "bg-violet-100 text-violet-700" },
-  { id: 2, name: "Premium Rice Traders",      owner: "Suresh Patil",  city: "Mumbai",     state: "Maharashtra",  emoji: "\u{1F33E}", tag: "Staples",     tagColor: "bg-emerald-100 text-emerald-700" },
-  { id: 3, name: "Gujarat Sugar Mills",       owner: "Bhavesh Patel", city: "Ahmedabad",  state: "Gujarat",      emoji: "\u{1F3EA}", tag: "Commodities", tagColor: "bg-amber-100 text-amber-700" },
+  { id: 1, name: "Nestle India Distributor",  owner: "Rahul Mehta",   city: "Bengaluru",  state: "Karnataka",   emoji: "\u{1F3ED}", tag: "FMCG",        tagColor: "bg-violet-100 text-violet-700" },
+  { id: 2, name: "Premium Rice Traders",      owner: "Suresh Patil",  city: "Mumbai",     state: "Maharashtra", emoji: "\u{1F33E}", tag: "Staples",     tagColor: "bg-emerald-100 text-emerald-700" },
+  { id: 3, name: "Gujarat Sugar Mills",       owner: "Bhavesh Patel", city: "Ahmedabad",  state: "Gujarat",     emoji: "\u{1F3EA}", tag: "Commodities", tagColor: "bg-amber-100 text-amber-700" },
 ];
 
 const PRODUCTS = [
-  { id: 1, sellerId: 1, name: "Maggi 500g Packet",    sku: "NES-MAG-500",  category: "Snacks",    mrp: 14,    price: 10,   weight: 0.5,  emoji: "ðŸœ", min: 24, fragile: false, perishable: false },
-  { id: 2, sellerId: 1, name: "Nescafe Classic 200g", sku: "NES-COF-200",  category: "Beverages", mrp: 350,   price: 280,  weight: 0.25, emoji: "â˜•", min: 12, fragile: true,  perishable: false },
-  { id: 3, sellerId: 2, name: "Basmati Rice 10Kg",    sku: "PRT-RIC-10K",  category: "Rice",      mrp: 700,   price: 500,  weight: 10,   emoji: "ðŸš", min: 5,  fragile: false, perishable: false },
-  { id: 4, sellerId: 2, name: "Sona Masoori Rice 25Kg", sku: "PRT-RIC-25K", category: "Rice",    mrp: 1200,  price: 950,  weight: 25,   emoji: "ðŸŒ¾", min: 3,  fragile: false, perishable: false },
-  { id: 5, sellerId: 3, name: "White Sugar 25Kg",     sku: "GSM-SUG-25K",  category: "Sugar",     mrp: 900,   price: 700,  weight: 25,   emoji: "ðŸ¬", min: 5,  fragile: false, perishable: false },
-  { id: 6, sellerId: 3, name: "Jaggery Powder 5Kg",   sku: "GSM-JAG-5K",   category: "Sugar",     mrp: 400,   price: 320,  weight: 5,    emoji: "ðŸŸ«", min: 10, fragile: false, perishable: false },
+  { id: 1, sellerId: 1, name: "Maggi 500g Packet",      sku: "NES-MAG-500",  category: "Snacks",    mrp: 14,   price: 10,  weight: 0.5,  emoji: "\u{1F35C}", min: 24, fragile: false, perishable: false },
+  { id: 2, sellerId: 1, name: "Nescafe Classic 200g",   sku: "NES-COF-200",  category: "Beverages", mrp: 350,  price: 280, weight: 0.25, emoji: "\u{2615}",  min: 12, fragile: true,  perishable: false },
+  { id: 3, sellerId: 2, name: "Basmati Rice 10Kg",      sku: "PRT-RIC-10K",  category: "Rice",      mrp: 700,  price: 500, weight: 10,   emoji: "\u{1F35A}", min: 5,  fragile: false, perishable: false },
+  { id: 4, sellerId: 2, name: "Sona Masoori Rice 25Kg", sku: "PRT-RIC-25K",  category: "Rice",      mrp: 1200, price: 950, weight: 25,   emoji: "\u{1F33E}", min: 3,  fragile: false, perishable: false },
+  { id: 5, sellerId: 3, name: "White Sugar 25Kg",       sku: "GSM-SUG-25K",  category: "Sugar",     mrp: 900,  price: 700, weight: 25,   emoji: "\u{1F36C}", min: 5,  fragile: false, perishable: false },
+  { id: 6, sellerId: 3, name: "Jaggery Powder 5Kg",     sku: "GSM-JAG-5K",   category: "Sugar",     mrp: 400,  price: 320, weight: 5,    emoji: "\u{1F7EB}", min: 10, fragile: false, perishable: false },
 ];
 
 const CUSTOMERS = [
@@ -28,12 +28,12 @@ const CUSTOMERS = [
 ];
 
 const TRANSPORT_META: Record<string, { label: string; emoji: string; gradient: string; dist: string }> = {
-  minivan:   { label: "Mini Van",  emoji: "\u{1F690}", gradient: "from-cyan-500 to-blue-600",      dist: "0 - 100 km"  },
-  truck:     { label: "Truck",     emoji: "\u{1F69B}", gradient: "from-violet-500 to-purple-700",  dist: "100 - 500 km" },
-  aeroplane: { label: "Aeroplane", emoji: "\u2708",    gradient: "from-sky-400 to-indigo-600",    dist: "500+ km"     },
+  minivan:   { label: "Mini Van",  emoji: "\u{1F690}", gradient: "from-cyan-500 to-blue-600",     dist: "0 \u2013 100 km"  },
+  truck:     { label: "Truck",     emoji: "\u{1F69B}", gradient: "from-violet-500 to-purple-700", dist: "100 \u2013 500 km" },
+  aeroplane: { label: "Aeroplane", emoji: "\u2708\uFE0F", gradient: "from-sky-400 to-indigo-600", dist: "500+ km"          },
 };
 
-// â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Types --------------------------------------------------------------------
 
 interface Breakdown {
   distanceKm: number;
@@ -66,26 +66,26 @@ interface ApiResponse {
   fields?: Record<string, string>;
 }
 
-// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Helpers ------------------------------------------------------------------
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 const fmt = (n: number) =>
   n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-// â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Main Component -----------------------------------------------------------
 
 export default function Home() {
-  const [selectedSellerId, setSelectedSellerId] = useState<number | null>(null);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedSellerId,   setSelectedSellerId]   = useState<number | null>(null);
+  const [selectedProductId,  setSelectedProductId]  = useState<number | null>(null);
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
   const [deliverySpeed, setDeliverySpeed] = useState<"standard" | "express">("standard");
 
-  const [result, setResult] = useState<CalculationResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [result,  setResult]  = useState<CalculationResult | null>(null);
+  const [error,   setError]   = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const seller = SELLERS.find((s) => s.id === selectedSellerId) ?? null;
-  const product = PRODUCTS.find((p) => p.id === selectedProductId) ?? null;
+  const seller   = SELLERS.find((s) => s.id === selectedSellerId)   ?? null;
+  const product  = PRODUCTS.find((p) => p.id === selectedProductId) ?? null;
   const customer = CUSTOMERS.find((c) => c.id === selectedCustomerId) ?? null;
   const sellerProducts = PRODUCTS.filter((p) => p.sellerId === selectedSellerId);
 
@@ -104,7 +104,6 @@ export default function Home() {
     setError(null);
     setResult(null);
     setLoading(true);
-
     try {
       const res = await fetch(`${API_URL}/api/v1/shipping-charge/calculate`, {
         method: "POST",
@@ -134,14 +133,15 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
 
-      {/* â”€â”€ Animated Dark Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/}
+      {/* Animated Dark Hero */}
       <div className="gradient-hero text-white">
         <div className="max-w-5xl mx-auto px-4 pt-10 pb-14">
+
           {/* Nav */}
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center text-xl animate-float">
-                ðŸ“¦
+                {"\u{1F4E6}"}
               </div>
               <div>
                 <span className="font-display font-bold text-lg tracking-wide">Lalaji</span>
@@ -151,18 +151,19 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <a href="/docs" target="_blank"
                 className="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition text-white/80 font-medium border border-white/10">
-                âš¡ API Docs
+                {"\u26A1"} API Docs
               </a>
               <span className="text-xs px-3 py-1.5 rounded-lg bg-violet-500/30 text-violet-200 font-semibold border border-violet-400/20">
                 Go + Next.js
               </span>
             </div>
           </div>
+
           {/* Hero copy */}
           <div className="text-center space-y-4 animate-fade-in">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/15 rounded-full px-4 py-1.5 text-sm text-white/80 mb-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block" />
-              Seedha Source Se â€” Straight from Source
+              Seedha Source Se &mdash; Straight from Source
             </div>
             <h1 className="font-display font-bold text-5xl sm:text-6xl tracking-tight leading-none">
               Shipping Charge
@@ -172,14 +173,14 @@ export default function Home() {
             </h1>
             <p className="text-white/60 max-w-lg mx-auto text-base leading-relaxed">
               Find the nearest warehouse, pick your delivery speed, and get a complete
-              shipping cost breakdown â€” in seconds.
+              shipping cost breakdown &mdash; in seconds.
             </p>
             <div className="flex flex-wrap justify-center gap-2 pt-2">
               {Object.values(TRANSPORT_META).map((m) => (
                 <span key={m.label}
                   className="flex items-center gap-1.5 text-xs bg-white/10 border border-white/15 rounded-full px-3 py-1 text-white/70">
                   <span>{m.emoji}</span>{m.label}
-                  <span className="text-white/40">Â·</span>
+                  <span className="text-white/40">&middot;</span>
                   <span>{m.dist}</span>
                 </span>
               ))}
@@ -188,11 +189,10 @@ export default function Home() {
         </div>
       </div>
 
-
-      {/* â”€â”€ Steps â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/}
+      {/* Steps */}
       <main className="max-w-5xl mx-auto px-4 -mt-6 pb-16 space-y-5">
 
-        {/* Step 1 â€” Seller */}
+        {/* Step 1 - Seller */}
         <Step step={1} title="Choose a Seller" color="violet">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {SELLERS.map((s, i) => (
@@ -221,7 +221,7 @@ export default function Home() {
           </div>
         </Step>
 
-        {/* Step 2 â€” Product */}
+        {/* Step 2 - Product */}
         {selectedSellerId && (
           <Step step={2} title={`Products by ${seller?.name}`} color="teal">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -249,8 +249,8 @@ export default function Home() {
                   <p className="text-xs text-slate-400 mt-0.5 font-mono">{p.sku}</p>
                   <div className="flex items-center justify-between mt-3">
                     <div>
-                      <span className="text-base font-bold text-slate-900">â‚¹{p.price}</span>
-                      <span className="text-xs text-slate-400 line-through ml-1">â‚¹{p.mrp}</span>
+                      <span className="text-base font-bold text-slate-900">&#8377;{p.price}</span>
+                      <span className="text-xs text-slate-400 line-through ml-1">&#8377;{p.mrp}</span>
                     </div>
                     <span className="text-xs bg-slate-50 text-slate-500 px-2 py-0.5 rounded-full border border-slate-100">{p.weight} kg</span>
                   </div>
@@ -265,9 +265,9 @@ export default function Home() {
           </Step>
         )}
 
-        {/* Step 3 â€” Customer */}
+        {/* Step 3 - Customer */}
         {selectedProductId && (
-          <Step step={3} title="Choose Kirana Store â€” Delivery To" color="emerald">
+          <Step step={3} title="Choose Kirana Store &mdash; Delivery To" color="emerald">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {CUSTOMERS.map((c, i) => (
                 <button
@@ -299,7 +299,7 @@ export default function Home() {
           </Step>
         )}
 
-        {/* Step 4 â€” Speed + Submit */}
+        {/* Step 4 - Speed + Submit */}
         {selectedCustomerId && (
           <Step step={4} title="Delivery Speed" color="amber">
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -316,14 +316,14 @@ export default function Home() {
                         : "border-slate-200 bg-white hover:border-amber-300 hover:shadow-sm",
                     ].join(" ")}
                   >
-                    <div className="text-2xl mb-1.5">{speed === "standard" ? "ðŸ¢" : "âš¡"}</div>
+                    <div className="text-2xl mb-1.5">{speed === "standard" ? "\u{1F422}" : "\u26A1"}</div>
                     <p className={`font-semibold capitalize ${deliverySpeed === speed ? "text-amber-900" : "text-slate-800"}`}>
                       {speed}
                     </p>
                     <p className="text-xs text-slate-500 mt-0.5">
                       {speed === "standard"
-                        ? "â‚¹10 base + distance charge"
-                        : "â‚¹10 base + distance charge + â‚¹1.2 / kg express surcharge"}
+                        ? "&#8377;10 base + distance charge"
+                        : "&#8377;10 base + distance charge + &#8377;1.2 / kg express surcharge"}
                     </p>
                   </button>
                 ))}
@@ -331,13 +331,13 @@ export default function Home() {
 
               {/* Summary strip */}
               <div className="bg-white rounded-2xl border border-slate-100 p-4 flex flex-wrap gap-3 text-sm shadow-sm">
-                <SummaryPill label="Seller"     value={seller?.name ?? ""}    emoji={seller?.emoji} />
+                <SummaryPill label="Seller"     value={seller?.name ?? ""}   emoji={seller?.emoji} />
                 <Divider />
-                <SummaryPill label="Product"    value={product?.name ?? ""}   emoji={product?.emoji} />
+                <SummaryPill label="Product"    value={product?.name ?? ""}  emoji={product?.emoji} />
                 <Divider />
-                <SummaryPill label="Deliver to" value={customer?.name ?? ""}  emoji={customer?.emoji} />
+                <SummaryPill label="Deliver to" value={customer?.name ?? ""} emoji={customer?.emoji} />
                 <Divider />
-                <SummaryPill label="Speed"      value={deliverySpeed}         emoji={deliverySpeed === "express" ? "âš¡" : "ðŸ¢"} />
+                <SummaryPill label="Speed"      value={deliverySpeed}        emoji={deliverySpeed === "express" ? "\u26A1" : "\u{1F422}"} />
               </div>
 
               <button
@@ -356,9 +356,9 @@ export default function Home() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                     </svg>
-                    Calculating route &amp; chargesâ€¦
+                    Calculating route &amp; charges&hellip;
                   </>
-                ) : "Get Shipping Estimate â†’"}
+                ) : "Get Shipping Estimate \u2192"}
               </button>
             </form>
           </Step>
@@ -367,7 +367,7 @@ export default function Home() {
         {/* Error */}
         {error && (
           <div className="animate-fade-up bg-rose-50 border border-rose-200 rounded-2xl px-5 py-4 text-sm text-rose-700 flex items-start gap-3 shadow-sm">
-            <span className="text-xl shrink-0">âš ï¸</span>
+            <span className="text-xl shrink-0">{"\u26A0\uFE0F"}</span>
             <div><strong className="font-semibold">Error: </strong>{error}</div>
           </div>
         )}
@@ -375,15 +375,16 @@ export default function Home() {
         {/* Results */}
         {result && (
           <div className="space-y-4 animate-fade-up">
+
             {/* Route strip */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Shipping Route</h3>
               <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
-                <RouteNode emoji={seller?.emoji ?? "ðŸ­"} label="Seller"        sublabel={seller?.city ?? ""}               color="violet" />
+                <RouteNode emoji={seller?.emoji ?? "\u{1F3ED}"} label="Seller"         sublabel={seller?.city ?? ""}                color="violet" />
                 <RouteArrow label={`${fmt(result.nearestWarehouse.distanceKm)} km`} dim />
-                <RouteNode emoji="ðŸ¢"                   label={result.nearestWarehouse.warehouseName} sublabel="Nearest WH" color="indigo" highlight />
+                <RouteNode emoji="\u{1F3E2}"                    label={result.nearestWarehouse.warehouseName} sublabel="Nearest WH" color="indigo" highlight />
                 <RouteArrow label={`${fmt(result.breakdown.distanceKm)} km`} />
-                <RouteNode emoji={customer?.emoji ?? "ðŸ¬"} label={customer?.name ?? ""} sublabel={customer?.city ?? ""}    color="emerald" />
+                <RouteNode emoji={customer?.emoji ?? "\u{1F3EC}"} label={customer?.name ?? ""} sublabel={customer?.city ?? ""}      color="emerald" />
               </div>
             </div>
 
@@ -395,40 +396,41 @@ export default function Home() {
                 <div className="animate-count-up">
                   <p className="text-sm font-medium text-white/70 mb-1">Total Shipping Charge</p>
                   <p className="font-display font-bold text-6xl tracking-tight leading-none">
-                    â‚¹{fmt(result.shippingCharge)}
+                    &#8377;{fmt(result.shippingCharge)}
                   </p>
                   {tMeta && (
                     <p className="text-sm text-white/70 mt-2 flex items-center gap-1.5">
-                      {tMeta.emoji} {tMeta.label} Â· {tMeta.dist}
+                      {tMeta.emoji} {tMeta.label} &middot; {tMeta.dist}
                     </p>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <ResultBadge text={deliverySpeed === "express" ? "âš¡ Express" : "ðŸ¢ Standard"} />
-                  <ResultBadge text={`ðŸ“¦ ${product?.name}`} />
-                  <ResultBadge text={`âš–ï¸ ${fmt(result.breakdown.billableWeightKg)} kg`} />
+                  <ResultBadge text={deliverySpeed === "express" ? "\u26A1 Express" : "\u{1F422} Standard"} />
+                  <ResultBadge text={`\u{1F4E6} ${product?.name}`} />
+                  <ResultBadge text={`\u2696\uFE0F ${fmt(result.breakdown.billableWeightKg)} kg`} />
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
               {/* Breakdown */}
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Charge Breakdown</h3>
                 <table className="w-full text-sm">
                   <tbody>
-                    <BRow label="Distance (WH â†’ Store)"       value={`${fmt(result.breakdown.distanceKm)} km`} />
-                    <BRow label="Billable Weight"             value={`${fmt(result.breakdown.billableWeightKg)} kg`} note="max(actual, volumetric)" />
-                    <BRow label="Rate"                        value={`â‚¹${result.breakdown.ratePerKmPerKg} / km / kg`} />
-                    <BRow label="Base Courier Charge"         value={`â‚¹${fmt(result.breakdown.baseCourierCharge)}`} />
-                    <BRow label="Distance Charge"             value={`â‚¹${fmt(result.breakdown.distanceCharge)}`} />
+                    <BRow label="Distance (WH \u2192 Store)" value={`${fmt(result.breakdown.distanceKm)} km`} />
+                    <BRow label="Billable Weight"            value={`${fmt(result.breakdown.billableWeightKg)} kg`} note="max(actual, volumetric)" />
+                    <BRow label="Rate"                       value={`\u20B9${result.breakdown.ratePerKmPerKg} / km / kg`} />
+                    <BRow label="Base Courier Charge"        value={`\u20B9${fmt(result.breakdown.baseCourierCharge)}`} />
+                    <BRow label="Distance Charge"            value={`\u20B9${fmt(result.breakdown.distanceCharge)}`} />
                     {result.breakdown.expressCharge > 0 && (
-                      <BRow label="Express Surcharge (â‚¹1.2/kg)" value={`â‚¹${fmt(result.breakdown.expressCharge)}`} accent />
+                      <BRow label="Express Surcharge (\u20B91.2/kg)" value={`\u20B9${fmt(result.breakdown.expressCharge)}`} accent />
                     )}
                     <tr className="border-t-2 border-slate-100">
                       <td className="pt-3 font-bold text-slate-900">Total</td>
                       <td className="pt-3 text-right font-extrabold text-violet-700 text-base tabular-nums font-display">
-                        â‚¹{fmt(result.breakdown.totalCharge)}
+                        &#8377;{fmt(result.breakdown.totalCharge)}
                       </td>
                     </tr>
                   </tbody>
@@ -440,31 +442,33 @@ export default function Home() {
                 <div>
                   <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Nearest Warehouse</h3>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-indigo-100 flex items-center justify-center text-2xl shadow-inner">ðŸ¢</div>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-indigo-100 flex items-center justify-center text-2xl shadow-inner">
+                      {"\u{1F3E2}"}
+                    </div>
                     <div>
                       <p className="font-bold text-slate-900">{result.nearestWarehouse.warehouseName}</p>
                       <p className="text-xs text-slate-400">ID <span className="font-mono">#{result.nearestWarehouse.warehouseId}</span></p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2.5">
-                    <InfoCell label="Seller â†’ WH"  value={`${fmt(result.nearestWarehouse.distanceKm)} km`} />
-                    <InfoCell label="WH â†’ Store"   value={`${fmt(result.breakdown.distanceKm)} km`} />
-                    <InfoCell label="Latitude"     value={result.nearestWarehouse.warehouseLocation.lat.toFixed(4) + "Â° N"} />
-                    <InfoCell label="Longitude"    value={result.nearestWarehouse.warehouseLocation.lng.toFixed(4) + "Â° E"} />
+                    <InfoCell label="Seller \u2192 WH" value={`${fmt(result.nearestWarehouse.distanceKm)} km`} />
+                    <InfoCell label="WH \u2192 Store"  value={`${fmt(result.breakdown.distanceKm)} km`} />
+                    <InfoCell label="Latitude"         value={`${result.nearestWarehouse.warehouseLocation.lat.toFixed(4)}\u00B0 N`} />
+                    <InfoCell label="Longitude"        value={`${result.nearestWarehouse.warehouseLocation.lng.toFixed(4)}\u00B0 E`} />
                   </div>
                 </div>
                 <a
                   href={`https://www.google.com/maps?q=${result.nearestWarehouse.warehouseLocation.lat},${result.nearestWarehouse.warehouseLocation.lng}`}
                   target="_blank" rel="noopener noreferrer"
                   className="mt-4 flex items-center justify-center gap-2 border-2 border-violet-200 text-violet-700 hover:bg-violet-50 rounded-xl px-4 py-2.5 text-sm font-semibold transition">
-                  ðŸ—ºï¸ View Warehouse on Maps â†—
+                  {"\u{1F5FA}\uFE0F"} View Warehouse on Maps &nearr;
                 </a>
               </div>
             </div>
 
             <p className="text-xs text-slate-400 text-center pb-4 font-mono">
-              Billable = max(actual, LÃ—WÃ—HÃ·5000) Â· Total = â‚¹10 + rate Ã— dist Ã— weight
-              {result.breakdown.expressCharge > 0 ? " + â‚¹1.2 Ã— weight (express)" : ""}
+              Billable = max(actual, L&times;W&times;H&divide;5000) &middot; Total = &#8377;10 + rate &times; dist &times; weight
+              {result.breakdown.expressCharge > 0 ? " + \u20B91.2 \u00D7 weight (express)" : ""}
             </p>
           </div>
         )}
@@ -473,10 +477,10 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white py-6">
         <div className="max-w-5xl mx-auto px-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
-          <span>Â© 2026 Lalaji â€” B2B Kirana Marketplace Â· Shipping Estimator v1.0</span>
+          <span>&copy; 2026 Lalaji &mdash; B2B Kirana Marketplace &middot; Shipping Estimator v1.0</span>
           <div className="flex items-center gap-3">
-            <a href="/docs" target="_blank" className="hover:text-violet-600 transition">API Docs â†—</a>
-            <a href="/api/openapi.yaml" target="_blank" className="hover:text-violet-600 transition font-mono">openapi.yaml â†—</a>
+            <a href="/docs" target="_blank" className="hover:text-violet-600 transition">API Docs &nearr;</a>
+            <a href="/api/openapi.yaml" target="_blank" className="hover:text-violet-600 transition font-mono">openapi.yaml &nearr;</a>
           </div>
         </div>
       </footer>
@@ -484,13 +488,13 @@ export default function Home() {
   );
 }
 
-// â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Sub-components -----------------------------------------------------------
 
 const STEP_COLORS: Record<string, { ring: string; bg: string; text: string; number: string }> = {
-  violet:  { ring: "ring-violet-200",  bg: "bg-violet-50",  text: "text-violet-700",  number: "bg-gradient-to-br from-violet-500 to-indigo-600" },
-  teal:    { ring: "ring-teal-200",    bg: "bg-teal-50",    text: "text-teal-700",    number: "bg-gradient-to-br from-teal-500 to-cyan-600" },
-  emerald: { ring: "ring-emerald-200", bg: "bg-emerald-50", text: "text-emerald-700", number: "bg-gradient-to-br from-emerald-500 to-teal-600" },
-  amber:   { ring: "ring-amber-200",   bg: "bg-amber-50",   text: "text-amber-700",   number: "bg-gradient-to-br from-amber-500 to-orange-500" },
+  violet:  { ring: "ring-violet-200",  bg: "bg-violet-50",  text: "text-violet-700",  number: "bg-gradient-to-br from-violet-500 to-indigo-600"  },
+  teal:    { ring: "ring-teal-200",    bg: "bg-teal-50",    text: "text-teal-700",    number: "bg-gradient-to-br from-teal-500 to-cyan-600"       },
+  emerald: { ring: "ring-emerald-200", bg: "bg-emerald-50", text: "text-emerald-700", number: "bg-gradient-to-br from-emerald-500 to-teal-600"    },
+  amber:   { ring: "ring-amber-200",   bg: "bg-amber-50",   text: "text-amber-700",   number: "bg-gradient-to-br from-amber-500 to-orange-500"    },
 };
 
 function Step({ step, title, color, children }: {
@@ -548,7 +552,7 @@ function RouteArrow({ label, dim }: { label: string; dim?: boolean }) {
   return (
     <div className={`flex flex-col items-center gap-0.5 flex-1 min-w-[44px] ${dim ? "opacity-40" : ""}`}>
       <div className="w-full border-t-2 border-dashed border-violet-300 relative">
-        <span className="absolute right-0 top-[-8px] text-violet-400 text-sm">â–¶</span>
+        <span className="absolute right-0 top-[-8px] text-violet-400 text-sm">&#9654;</span>
       </div>
       <span className="text-[10px] text-slate-400 font-mono">{label}</span>
     </div>
