@@ -8,10 +8,10 @@ services:
     name: jambotails-shipping-api
     runtime: go
     plan: free                # upgrade to "starter" for always-on
-    buildCommand: >
-      go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-      && go build -o bin/shipping-service ./cmd/server
-    startCommand: sh entrypoint.sh
+    buildCommand: |
+      go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest &&
+      go build -ldflags="-s -w" -o app ./cmd/server
+    startCommand: bash entrypoint.sh
     healthCheckPath: /health
 
     envVars:

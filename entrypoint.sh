@@ -7,4 +7,4 @@ echo "[entrypoint] Running database migrations..."
 migrate -path ./migrations -database "$DATABASE_URL" up
 echo "[entrypoint] Migrations done."
 
-exec ./bin/shipping-service
+exec ./app
