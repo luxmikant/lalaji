@@ -1,39 +1,39 @@
-﻿"use client";
+"use client";
 
 import { useState, FormEvent } from "react";
 
-// â”€â”€ Seed data catalogue (mirrors DB migrations/000002_seed_data.up.sql) â”€â”€â”€â”€â”€â”€
+// ── Seed data catalogue (mirrors DB migrations/000002_seed_data.up.sql) ──────
 
 const SELLERS = [
-  { id: 1, name: "Nestle India Distributor", owner: "Rahul Mehta", city: "Bengaluru", state: "Karnataka", emoji: "ðŸ­", tag: "FMCG" },
-  { id: 2, name: "Premium Rice Traders",     owner: "Suresh Patil",  city: "Mumbai",    state: "Maharashtra", emoji: "ðŸŒ¾", tag: "Staples" },
-  { id: 3, name: "Gujarat Sugar Mills",      owner: "Bhavesh Patel", city: "Ahmedabad", state: "Gujarat",     emoji: "ðŸª", tag: "Commodities" },
+  { id: 1, name: "Nestle India Distributor", owner: "Rahul Mehta", city: "Bengaluru", state: "Karnataka", emoji: "\u{1F3ED}", tag: "FMCG" },
+  { id: 2, name: "Premium Rice Traders",     owner: "Suresh Patil",  city: "Mumbai",    state: "Maharashtra", emoji: "\u{1F33E}", tag: "Staples" },
+  { id: 3, name: "Gujarat Sugar Mills",      owner: "Bhavesh Patel", city: "Ahmedabad", state: "Gujarat",     emoji: "\u{1F3EA}", tag: "Commodities" },
 ];
 
 const PRODUCTS = [
-  { id: 1, sellerId: 1, name: "Maggi 500g Packet",    sku: "NES-MAG-500",  category: "Snacks",    mrp: 14,    price: 10,   weight: 0.5,  emoji: "ðŸœ", min: 24, fragile: false, perishable: false },
-  { id: 2, sellerId: 1, name: "Nescafe Classic 200g", sku: "NES-COF-200",  category: "Beverages", mrp: 350,   price: 280,  weight: 0.25, emoji: "â˜•", min: 12, fragile: true,  perishable: false },
-  { id: 3, sellerId: 2, name: "Basmati Rice 10Kg",    sku: "PRT-RIC-10K",  category: "Rice",      mrp: 700,   price: 500,  weight: 10,   emoji: "ðŸš", min: 5,  fragile: false, perishable: false },
-  { id: 4, sellerId: 2, name: "Sona Masoori Rice 25Kg", sku: "PRT-RIC-25K", category: "Rice",    mrp: 1200,  price: 950,  weight: 25,   emoji: "ðŸŒ¾", min: 3,  fragile: false, perishable: false },
-  { id: 5, sellerId: 3, name: "White Sugar 25Kg",     sku: "GSM-SUG-25K",  category: "Sugar",     mrp: 900,   price: 700,  weight: 25,   emoji: "ðŸ¬", min: 5,  fragile: false, perishable: false },
-  { id: 6, sellerId: 3, name: "Jaggery Powder 5Kg",   sku: "GSM-JAG-5K",   category: "Sugar",     mrp: 400,   price: 320,  weight: 5,    emoji: "ðŸŸ«", min: 10, fragile: false, perishable: false },
+  { id: 1, sellerId: 1, name: "Maggi 500g Packet",    sku: "NES-MAG-500",  category: "Snacks",    mrp: 14,    price: 10,   weight: 0.5,  emoji: "🍜", min: 24, fragile: false, perishable: false },
+  { id: 2, sellerId: 1, name: "Nescafe Classic 200g", sku: "NES-COF-200",  category: "Beverages", mrp: 350,   price: 280,  weight: 0.25, emoji: "☕", min: 12, fragile: true,  perishable: false },
+  { id: 3, sellerId: 2, name: "Basmati Rice 10Kg",    sku: "PRT-RIC-10K",  category: "Rice",      mrp: 700,   price: 500,  weight: 10,   emoji: "🍚", min: 5,  fragile: false, perishable: false },
+  { id: 4, sellerId: 2, name: "Sona Masoori Rice 25Kg", sku: "PRT-RIC-25K", category: "Rice",    mrp: 1200,  price: 950,  weight: 25,   emoji: "🌾", min: 3,  fragile: false, perishable: false },
+  { id: 5, sellerId: 3, name: "White Sugar 25Kg",     sku: "GSM-SUG-25K",  category: "Sugar",     mrp: 900,   price: 700,  weight: 25,   emoji: "🍬", min: 5,  fragile: false, perishable: false },
+  { id: 6, sellerId: 3, name: "Jaggery Powder 5Kg",   sku: "GSM-JAG-5K",   category: "Sugar",     mrp: 400,   price: 320,  weight: 5,    emoji: "🟫", min: 10, fragile: false, perishable: false },
 ];
 
 const CUSTOMERS = [
-  { id: 1, name: "Shree Kirana Store",   owner: "Ramesh Kumar",  city: "Bengaluru", state: "Karnataka",   pincode: "560034", emoji: "ðŸ¬", type: "Grocery" },
-  { id: 2, name: "Andheri Mini Mart",    owner: "Sunil Sharma",  city: "Mumbai",    state: "Maharashtra", pincode: "400053", emoji: "ðŸ›’", type: "General" },
-  { id: 3, name: "Dilli Grocery Hub",    owner: "Pankaj Verma",  city: "New Delhi", state: "Delhi",       pincode: "110001", emoji: "ðŸª", type: "Grocery" },
-  { id: 4, name: "Hyderabad Fresh Mart", owner: "Lakshmi Reddy", city: "Hyderabad", state: "Telangana",   pincode: "500034", emoji: "ðŸŒ¿", type: "Dairy & Fresh" },
-  { id: 5, name: "Chennai Bazaar",       owner: "Murugan S",     city: "Chennai",   state: "Tamil Nadu",  pincode: "600017", emoji: "ðŸŽª", type: "General" },
+  { id: 1, name: "Shree Kirana Store",   owner: "Ramesh Kumar",  city: "Bengaluru", state: "Karnataka",   pincode: "560034", emoji: "\u{1F3EC}", type: "Grocery" },
+  { id: 2, name: "Andheri Mini Mart",    owner: "Sunil Sharma",  city: "Mumbai",    state: "Maharashtra", pincode: "400053", emoji: "\u{1F6D2}", type: "General" },
+  { id: 3, name: "Dilli Grocery Hub",    owner: "Pankaj Verma",  city: "New Delhi", state: "Delhi",       pincode: "110001", emoji: "\u{1F3EA}", type: "Grocery" },
+  { id: 4, name: "Hyderabad Fresh Mart", owner: "Lakshmi Reddy", city: "Hyderabad", state: "Telangana",   pincode: "500034", emoji: "\u{1F33F}", type: "Dairy & Fresh" },
+  { id: 5, name: "Chennai Bazaar",       owner: "Murugan S",     city: "Chennai",   state: "Tamil Nadu",  pincode: "600017", emoji: "\u{1F3AA}", type: "General" },
 ];
 
 const TRANSPORT_META: Record<string, { label: string; emoji: string; color: string; dist: string }> = {
-  minivan:   { label: "Mini Van",   emoji: "ðŸš", color: "text-blue-600 bg-blue-50",   dist: "0 â€“ 100 km" },
-  truck:     { label: "Truck",      emoji: "ðŸš›", color: "text-purple-600 bg-purple-50", dist: "100 â€“ 500 km" },
-  aeroplane: { label: "Aeroplane",  emoji: "âœˆï¸", color: "text-sky-600 bg-sky-50",      dist: "500+ km" },
+  minivan:   { label: "Mini Van",   emoji: "\u{1F690}", color: "text-blue-600 bg-blue-50",   dist: "0 - 100 km" },
+  truck:     { label: "Truck",      emoji: "\u{1F69B}", color: "text-purple-600 bg-purple-50", dist: "100 - 500 km" },
+  aeroplane: { label: "Aeroplane",  emoji: "\u2708",    color: "text-sky-600 bg-sky-50",      dist: "500+ km" },
 };
 
-// â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Types ────────────────────────────────────────────────────
 
 interface Breakdown {
   distanceKm: number;
@@ -66,13 +66,13 @@ interface ApiResponse {
   fields?: Record<string, string>;
 }
 
-// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Helpers ──────────────────────────────────────────────────
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
 const fmt = (n: number) =>
   n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-// â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Main Component ───────────────────────────────────────────
 
 export default function Home() {
   const [selectedSellerId, setSelectedSellerId] = useState<number | null>(null);
@@ -133,11 +133,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#FDF6EC]">
-      {/* â”€â”€ Topbar â”€â”€ */}
+      {/* ── Topbar ── */}
       <header className="bg-white border-b border-orange-100 sticky top-0 z-10 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-2xl">ðŸ“¦</span>
+            <span className="text-2xl">📦</span>
             <div>
               <span className="font-bold text-gray-900 text-base tracking-tight">Jambotails</span>
               <span className="text-gray-400 text-xs ml-2 hidden sm:inline">B2B Kirana Shipping Estimator</span>
@@ -152,18 +152,18 @@ export default function Home() {
 
       <main className="max-w-5xl mx-auto px-4 py-8 space-y-8">
 
-        {/* â”€â”€ Hero â”€â”€ */}
+        {/* ── Hero ── */}
         <div className="text-center space-y-2 pt-2">
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
             Shipping Charge Estimator
           </h1>
           <p className="text-gray-500 max-w-xl mx-auto text-sm leading-relaxed">
             Select a seller, choose a product, and pick your Kirana store to get an accurate
-            shipping estimate â€” including nearest warehouse routing and transport mode.
+            shipping estimate — including nearest warehouse routing and transport mode.
           </p>
         </div>
 
-        {/* â”€â”€ Step 1: Seller â”€â”€ */}
+        {/* ── Step 1: Seller ── */}
         <Section step={1} title="Choose a Seller">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {SELLERS.map((s) => (
@@ -188,7 +188,7 @@ export default function Home() {
           </div>
         </Section>
 
-        {/* â”€â”€ Step 2: Product â”€â”€ */}
+        {/* ── Step 2: Product ── */}
         {selectedSellerId && (
           <Section step={2} title={`Products by ${seller?.name}`}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -210,8 +210,8 @@ export default function Home() {
                   <p className="text-xs text-gray-400 mt-0.5 font-mono">{p.sku}</p>
                   <div className="flex items-center justify-between mt-3">
                     <div>
-                      <span className="text-base font-bold text-gray-900">â‚¹{p.price}</span>
-                      <span className="text-xs text-gray-400 line-through ml-1">â‚¹{p.mrp}</span>
+                      <span className="text-base font-bold text-gray-900">₹{p.price}</span>
+                      <span className="text-xs text-gray-400 line-through ml-1">₹{p.mrp}</span>
                     </div>
                     <span className="text-xs text-gray-500">{p.weight} kg</span>
                   </div>
@@ -226,7 +226,7 @@ export default function Home() {
           </Section>
         )}
 
-        {/* â”€â”€ Step 3: Customer (Kirana Store) â”€â”€ */}
+        {/* ── Step 3: Customer (Kirana Store) ── */}
         {selectedProductId && (
           <Section step={3} title="Choose Kirana Store (Delivery To)">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -254,7 +254,7 @@ export default function Home() {
           </Section>
         )}
 
-        {/* â”€â”€ Step 4: Delivery Speed + Submit â”€â”€ */}
+        {/* ── Step 4: Delivery Speed + Submit ── */}
         {selectedCustomerId && (
           <Section step={4} title="Delivery Speed">
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -270,12 +270,12 @@ export default function Home() {
                         : "border-gray-200 bg-white hover:border-orange-300"
                     }`}
                   >
-                    <div className="text-2xl mb-1">{speed === "standard" ? "ðŸ¢" : "âš¡"}</div>
+                    <div className="text-2xl mb-1">{speed === "standard" ? "🐢" : "⚡"}</div>
                     <p className="font-semibold text-gray-800 capitalize">{speed}</p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       {speed === "standard"
-                        ? "â‚¹10 base + distance charge"
-                        : "â‚¹10 base + distance charge + â‚¹1.2/kg surcharge"}
+                        ? "₹10 base + distance charge"
+                        : "₹10 base + distance charge + ₹1.2/kg surcharge"}
                     </p>
                   </button>
                 ))}
@@ -289,7 +289,7 @@ export default function Home() {
                 <span className="text-gray-200">|</span>
                 <Pill label="Deliver to" value={customer?.name ?? ""} emoji={customer?.emoji} />
                 <span className="text-gray-200">|</span>
-                <Pill label="Speed" value={deliverySpeed} emoji={deliverySpeed === "express" ? "âš¡" : "ðŸ¢"} />
+                <Pill label="Speed" value={deliverySpeed} emoji={deliverySpeed === "express" ? "⚡" : "🐢"} />
               </div>
 
               <button
@@ -303,25 +303,25 @@ export default function Home() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                     </svg>
-                    Calculating route &amp; chargesâ€¦
+                    Calculating route &amp; charges…
                   </>
                 ) : (
-                  "Get Shipping Estimate â†’"
+                  "Get Shipping Estimate →"
                 )}
               </button>
             </form>
           </Section>
         )}
 
-        {/* â”€â”€ Error â”€â”€ */}
+        {/* ── Error ── */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 text-sm text-red-700 flex items-start gap-2">
-            <span className="text-lg">âš ï¸</span>
+            <span className="text-lg">⚠️</span>
             <div><strong>Error:</strong> {error}</div>
           </div>
         )}
 
-        {/* â”€â”€ Results â”€â”€ */}
+        {/* ── Results ── */}
         {result && (
           <div className="space-y-5 animate-pulse-once">
 
@@ -329,11 +329,11 @@ export default function Home() {
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Shipping Route</h3>
               <div className="flex items-center justify-between gap-2 overflow-x-auto">
-                <RouteNode emoji={seller?.emoji ?? "ðŸ­"} label="Seller" sublabel={seller?.city ?? ""} />
+                <RouteNode emoji={seller?.emoji ?? "🏭"} label="Seller" sublabel={seller?.city ?? ""} />
                 <RouteArrow label={`${fmt(result.nearestWarehouse.distanceKm)} km`} dim />
-                <RouteNode emoji="ðŸ¢" label={result.nearestWarehouse.warehouseName} sublabel="Nearest Warehouse" highlight />
+                <RouteNode emoji="🏢" label={result.nearestWarehouse.warehouseName} sublabel="Nearest Warehouse" highlight />
                 <RouteArrow label={`${fmt(result.breakdown.distanceKm)} km`} />
-                <RouteNode emoji={customer?.emoji ?? "ðŸ¬"} label={customer?.name ?? ""} sublabel={customer?.city ?? ""} />
+                <RouteNode emoji={customer?.emoji ?? "🏬"} label={customer?.name ?? ""} sublabel={customer?.city ?? ""} />
               </div>
             </div>
 
@@ -342,7 +342,7 @@ export default function Home() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-orange-100">Total Shipping Charge</p>
-                  <p className="text-5xl font-extrabold mt-0.5 tracking-tight">â‚¹{fmt(result.shippingCharge)}</p>
+                  <p className="text-5xl font-extrabold mt-0.5 tracking-tight">₹{fmt(result.shippingCharge)}</p>
                 </div>
                 {transportMeta && (
                   <div className={`flex flex-col items-center rounded-xl px-4 py-3 bg-white/20`}>
@@ -353,9 +353,9 @@ export default function Home() {
                 )}
               </div>
               <div className="flex flex-wrap gap-2 mt-4">
-                <Badge text={deliverySpeed === "express" ? "âš¡ Express Delivery" : "ðŸ¢ Standard Delivery"} />
-                <Badge text={`ðŸ“¦ ${product?.name}`} />
-                <Badge text={`âš–ï¸ ${fmt(result.breakdown.billableWeightKg)} kg billable`} />
+                <Badge text={deliverySpeed === "express" ? "⚡ Express Delivery" : "🐢 Standard Delivery"} />
+                <Badge text={`📦 ${product?.name}`} />
+                <Badge text={`⚖️ ${fmt(result.breakdown.billableWeightKg)} kg billable`} />
               </div>
             </div>
 
@@ -365,18 +365,18 @@ export default function Home() {
                 <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Charge Breakdown</h3>
                 <table className="w-full text-sm">
                   <tbody>
-                    <BreakdownRow label="Distance (WH â†’ Store)" value={`${fmt(result.breakdown.distanceKm)} km`} />
+                    <BreakdownRow label="Distance (WH → Store)" value={`${fmt(result.breakdown.distanceKm)} km`} />
                     <BreakdownRow label="Billable Weight" value={`${fmt(result.breakdown.billableWeightKg)} kg`} note="max(actual, volumetric)" />
-                    <BreakdownRow label="Rate" value={`â‚¹${result.breakdown.ratePerKmPerKg}/km/kg`} />
-                    <BreakdownRow label="Base Courier Charge" value={`â‚¹${fmt(result.breakdown.baseCourierCharge)}`} />
-                    <BreakdownRow label="Distance Charge" value={`â‚¹${fmt(result.breakdown.distanceCharge)}`} />
+                    <BreakdownRow label="Rate" value={`₹${result.breakdown.ratePerKmPerKg}/km/kg`} />
+                    <BreakdownRow label="Base Courier Charge" value={`₹${fmt(result.breakdown.baseCourierCharge)}`} />
+                    <BreakdownRow label="Distance Charge" value={`₹${fmt(result.breakdown.distanceCharge)}`} />
                     {result.breakdown.expressCharge > 0 && (
-                      <BreakdownRow label="Express Surcharge" value={`â‚¹${fmt(result.breakdown.expressCharge)}`} accent />
+                      <BreakdownRow label="Express Surcharge" value={`₹${fmt(result.breakdown.expressCharge)}`} accent />
                     )}
                     <tr className="border-t-2 border-gray-100">
                       <td className="pt-3 font-bold text-gray-900">Total</td>
                       <td className="pt-3 text-right font-extrabold text-orange-600 text-base tabular-nums">
-                        â‚¹{fmt(result.breakdown.totalCharge)}
+                        ₹{fmt(result.breakdown.totalCharge)}
                       </td>
                     </tr>
                   </tbody>
@@ -388,17 +388,17 @@ export default function Home() {
                 <div>
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Nearest Warehouse</h3>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-2xl">ðŸ¢</div>
+                    <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-2xl">🏢</div>
                     <div>
                       <p className="font-bold text-gray-900">{result.nearestWarehouse.warehouseName}</p>
                       <p className="text-xs text-gray-500">Warehouse ID #{result.nearestWarehouse.warehouseId}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <InfoCell label="Seller â†’ WH" value={`${fmt(result.nearestWarehouse.distanceKm)} km`} />
-                    <InfoCell label="WH â†’ Store" value={`${fmt(result.breakdown.distanceKm)} km`} />
-                    <InfoCell label="Lat" value={result.nearestWarehouse.warehouseLocation.lat.toFixed(4) + "Â°N"} />
-                    <InfoCell label="Lng" value={result.nearestWarehouse.warehouseLocation.lng.toFixed(4) + "Â°E"} />
+                    <InfoCell label="Seller → WH" value={`${fmt(result.nearestWarehouse.distanceKm)} km`} />
+                    <InfoCell label="WH → Store" value={`${fmt(result.breakdown.distanceKm)} km`} />
+                    <InfoCell label="Lat" value={result.nearestWarehouse.warehouseLocation.lat.toFixed(4) + "°N"} />
+                    <InfoCell label="Lng" value={result.nearestWarehouse.warehouseLocation.lng.toFixed(4) + "°E"} />
                   </div>
                 </div>
                 <a
@@ -407,15 +407,15 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="mt-4 flex items-center justify-center gap-2 border border-orange-200 text-orange-600 hover:bg-orange-50 rounded-xl px-4 py-2.5 text-sm font-semibold transition"
                 >
-                  ðŸ—ºï¸ View Warehouse on Maps â†—
+                  🗺️ View Warehouse on Maps ↗
                 </a>
               </div>
             </div>
 
             {/* Formula note */}
             <p className="text-xs text-gray-400 text-center pb-4">
-              Billable weight = max(actual_weight, LÃ—WÃ—HÃ·5000) Â· Total = â‚¹10 base + (rate Ã— dist Ã— weight)
-              {result.breakdown.expressCharge > 0 ? " + â‚¹1.2 Ã— weight (express)" : ""}
+              Billable weight = max(actual_weight, L×W×H÷5000) · Total = ₹10 base + (rate × dist × weight)
+              {result.breakdown.expressCharge > 0 ? " + ₹1.2 × weight (express)" : ""}
             </p>
           </div>
         )}
@@ -424,7 +424,7 @@ export default function Home() {
   );
 }
 
-// â”€â”€ Sub-components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Sub-components ───────────────────────────────────────────
 
 function Section({ step, title, children }: { step: number; title: string; children: React.ReactNode }) {
   return (
@@ -468,7 +468,7 @@ function RouteArrow({ label, dim }: { label: string; dim?: boolean }) {
   return (
     <div className={`flex flex-col items-center gap-0.5 flex-1 min-w-[50px] ${dim ? "opacity-40" : ""}`}>
       <div className="w-full border-t-2 border-dashed border-orange-300 relative">
-        <span className="absolute right-0 top-[-7px] text-orange-400">â–¶</span>
+        <span className="absolute right-0 top-[-7px] text-orange-400">▶</span>
       </div>
       <span className="text-[10px] text-gray-400 font-mono">{label}</span>
     </div>
