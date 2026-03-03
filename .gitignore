@@ -1,24 +1,32 @@
-# Binaries
+# ── Go ───────────────────────────────────────────────────────
 bin/
 *.exe
-
-# Go
-vendor/
 *.test
-
-# Coverage
+vendor/
 coverage.out
 coverage.html
 
-# IDE
+# ── Env / Secrets ────────────────────────────────────────────
+.env
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+
+# ── Node / Next.js (frontend) ────────────────────────────────
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.vercel/
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# ── IDE ──────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# ── OS ───────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
-
-# Env
-.env

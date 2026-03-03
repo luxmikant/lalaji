@@ -59,7 +59,7 @@ func main() {
 
 	// ── Redis ────────────────────────────────────────────────
 	redisClient, err := cache.NewRedisClient(
-		cfg.Redis.Addr(), cfg.Redis.Password, cfg.Redis.DB, logger,
+		cfg.Redis.URL, cfg.Redis.Addr(), cfg.Redis.Password, cfg.Redis.DB, logger,
 	)
 	if err != nil {
 		logger.Warn("redis init error (cache disabled)", zap.Error(err))
