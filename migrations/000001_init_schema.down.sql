@@ -1,0 +1,8 @@
+DROP TABLE IF EXISTS shipments;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS delivery_speed_configs;
+DROP TABLE IF EXISTS transport_rates;
+DROP TABLE IF EXISTS warehouses;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS sellers;
+DROP TABLE IF EXISTS customers;
