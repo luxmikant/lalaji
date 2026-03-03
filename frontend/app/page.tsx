@@ -141,7 +141,7 @@ export default function Home() {
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center text-xl animate-float">
-                {"\u{1F4E6}"}
+                📦
               </div>
               <div>
                 <span className="font-display font-bold text-lg tracking-wide">Lalaji</span>
@@ -149,9 +149,9 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <a href="/docs" target="_blank"
+              <a href={`${API_URL}/docs`} target="_blank"
                 className="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition text-white/80 font-medium border border-white/10">
-                {"\u26A1"} API Docs
+                ⚡ API Docs
               </a>
               <span className="text-xs px-3 py-1.5 rounded-lg bg-violet-500/30 text-violet-200 font-semibold border border-violet-400/20">
                 Go + Next.js
@@ -163,7 +163,7 @@ export default function Home() {
           <div className="text-center space-y-4 animate-fade-in">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/15 rounded-full px-4 py-1.5 text-sm text-white/80 mb-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block" />
-              Seedha Source Se &mdash; Straight from Source
+              Seedha Source Se — Straight from Source
             </div>
             <h1 className="font-display font-bold text-5xl sm:text-6xl tracking-tight leading-none">
               Shipping Charge
@@ -173,14 +173,14 @@ export default function Home() {
             </h1>
             <p className="text-white/60 max-w-lg mx-auto text-base leading-relaxed">
               Find the nearest warehouse, pick your delivery speed, and get a complete
-              shipping cost breakdown &mdash; in seconds.
+              shipping cost breakdown — in seconds.
             </p>
             <div className="flex flex-wrap justify-center gap-2 pt-2">
               {Object.values(TRANSPORT_META).map((m) => (
                 <span key={m.label}
                   className="flex items-center gap-1.5 text-xs bg-white/10 border border-white/15 rounded-full px-3 py-1 text-white/70">
                   <span>{m.emoji}</span>{m.label}
-                  <span className="text-white/40">&middot;</span>
+                  <span className="text-white/40">·</span>
                   <span>{m.dist}</span>
                 </span>
               ))}
@@ -316,7 +316,7 @@ export default function Home() {
                         : "border-slate-200 bg-white hover:border-amber-300 hover:shadow-sm",
                     ].join(" ")}
                   >
-                    <div className="text-2xl mb-1.5">{speed === "standard" ? "\u{1F422}" : "\u26A1"}</div>
+                    <div className="text-2xl mb-1.5">{speed === "standard" ? "🐢" : "⚡"}</div>
                     <p className={`font-semibold capitalize ${deliverySpeed === speed ? "text-amber-900" : "text-slate-800"}`}>
                       {speed}
                     </p>
@@ -337,7 +337,7 @@ export default function Home() {
                 <Divider />
                 <SummaryPill label="Deliver to" value={customer?.name ?? ""} emoji={customer?.emoji} />
                 <Divider />
-                <SummaryPill label="Speed"      value={deliverySpeed}        emoji={deliverySpeed === "express" ? "\u26A1" : "\u{1F422}"} />
+                <SummaryPill label="Speed"      value={deliverySpeed}        emoji={deliverySpeed === "express" ? "⚡" : "🐢"} />
               </div>
 
               <button
@@ -356,9 +356,9 @@ export default function Home() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                     </svg>
-                    Calculating route &amp; charges&hellip;
+                    Calculating route &amp; charges…
                   </>
-                ) : "Get Shipping Estimate \u2192"}
+                ) : "Get Shipping Estimate →"}
               </button>
             </form>
           </Step>
@@ -367,7 +367,7 @@ export default function Home() {
         {/* Error */}
         {error && (
           <div className="animate-fade-up bg-rose-50 border border-rose-200 rounded-2xl px-5 py-4 text-sm text-rose-700 flex items-start gap-3 shadow-sm">
-            <span className="text-xl shrink-0">{"\u26A0\uFE0F"}</span>
+            <span className="text-xl shrink-0">⚠️</span>
             <div><strong className="font-semibold">Error: </strong>{error}</div>
           </div>
         )}
@@ -380,11 +380,11 @@ export default function Home() {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
               <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Shipping Route</h3>
               <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
-                <RouteNode emoji={seller?.emoji ?? "\u{1F3ED}"} label="Seller"         sublabel={seller?.city ?? ""}                color="violet" />
+                <RouteNode emoji={seller?.emoji ?? "🏭"} label="Seller"         sublabel={seller?.city ?? ""}                color="violet" />
                 <RouteArrow label={`${fmt(result.nearestWarehouse.distanceKm)} km`} dim />
-                <RouteNode emoji="\u{1F3E2}"                    label={result.nearestWarehouse.warehouseName} sublabel="Nearest WH" color="indigo" highlight />
+                <RouteNode emoji="🏢"                    label={result.nearestWarehouse.warehouseName} sublabel="Nearest WH" color="indigo" highlight />
                 <RouteArrow label={`${fmt(result.breakdown.distanceKm)} km`} />
-                <RouteNode emoji={customer?.emoji ?? "\u{1F3EC}"} label={customer?.name ?? ""} sublabel={customer?.city ?? ""}      color="emerald" />
+                <RouteNode emoji={customer?.emoji ?? "🏬"} label={customer?.name ?? ""} sublabel={customer?.city ?? ""}      color="emerald" />
               </div>
             </div>
 
@@ -400,14 +400,14 @@ export default function Home() {
                   </p>
                   {tMeta && (
                     <p className="text-sm text-white/70 mt-2 flex items-center gap-1.5">
-                      {tMeta.emoji} {tMeta.label} &middot; {tMeta.dist}
+                      {tMeta.emoji} {tMeta.label} · {tMeta.dist}
                     </p>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <ResultBadge text={deliverySpeed === "express" ? "\u26A1 Express" : "\u{1F422} Standard"} />
-                  <ResultBadge text={`\u{1F4E6} ${product?.name}`} />
-                  <ResultBadge text={`\u2696\uFE0F ${fmt(result.breakdown.billableWeightKg)} kg`} />
+                  <ResultBadge text={deliverySpeed === "express" ? "⚡ Express" : "🐢 Standard"} />
+                  <ResultBadge text={`📦 ${product?.name}`} />
+                  <ResultBadge text={`⚖️ ${fmt(result.breakdown.billableWeightKg)} kg`} />
                 </div>
               </div>
             </div>
@@ -419,13 +419,13 @@ export default function Home() {
                 <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Charge Breakdown</h3>
                 <table className="w-full text-sm">
                   <tbody>
-                    <BRow label="Distance (WH \u2192 Store)" value={`${fmt(result.breakdown.distanceKm)} km`} />
+                    <BRow label="Distance (WH → Store)" value={`${fmt(result.breakdown.distanceKm)} km`} />
                     <BRow label="Billable Weight"            value={`${fmt(result.breakdown.billableWeightKg)} kg`} note="max(actual, volumetric)" />
-                    <BRow label="Rate"                       value={`\u20B9${result.breakdown.ratePerKmPerKg} / km / kg`} />
-                    <BRow label="Base Courier Charge"        value={`\u20B9${fmt(result.breakdown.baseCourierCharge)}`} />
-                    <BRow label="Distance Charge"            value={`\u20B9${fmt(result.breakdown.distanceCharge)}`} />
+                    <BRow label="Rate"                       value={`₹${result.breakdown.ratePerKmPerKg} / km / kg`} />
+                    <BRow label="Base Courier Charge"        value={`₹${fmt(result.breakdown.baseCourierCharge)}`} />
+                    <BRow label="Distance Charge"            value={`₹${fmt(result.breakdown.distanceCharge)}`} />
                     {result.breakdown.expressCharge > 0 && (
-                      <BRow label="Express Surcharge (\u20B91.2/kg)" value={`\u20B9${fmt(result.breakdown.expressCharge)}`} accent />
+                      <BRow label="Express Surcharge (₹1.2/kg)" value={`₹${fmt(result.breakdown.expressCharge)}`} accent />
                     )}
                     <tr className="border-t-2 border-slate-100">
                       <td className="pt-3 font-bold text-slate-900">Total</td>
@@ -443,7 +443,7 @@ export default function Home() {
                   <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Nearest Warehouse</h3>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-indigo-100 flex items-center justify-center text-2xl shadow-inner">
-                      {"\u{1F3E2}"}
+                      🏢
                     </div>
                     <div>
                       <p className="font-bold text-slate-900">{result.nearestWarehouse.warehouseName}</p>
@@ -451,24 +451,24 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2.5">
-                    <InfoCell label="Seller \u2192 WH" value={`${fmt(result.nearestWarehouse.distanceKm)} km`} />
-                    <InfoCell label="WH \u2192 Store"  value={`${fmt(result.breakdown.distanceKm)} km`} />
-                    <InfoCell label="Latitude"         value={`${result.nearestWarehouse.warehouseLocation.lat.toFixed(4)}\u00B0 N`} />
-                    <InfoCell label="Longitude"        value={`${result.nearestWarehouse.warehouseLocation.lng.toFixed(4)}\u00B0 E`} />
+                    <InfoCell label="Seller → WH" value={`${fmt(result.nearestWarehouse.distanceKm)} km`} />
+                    <InfoCell label="WH → Store"  value={`${fmt(result.breakdown.distanceKm)} km`} />
+                    <InfoCell label="Latitude"         value={`${result.nearestWarehouse.warehouseLocation.lat.toFixed(4)}° N`} />
+                    <InfoCell label="Longitude"        value={`${result.nearestWarehouse.warehouseLocation.lng.toFixed(4)}° E`} />
                   </div>
                 </div>
                 <a
                   href={`https://www.google.com/maps?q=${result.nearestWarehouse.warehouseLocation.lat},${result.nearestWarehouse.warehouseLocation.lng}`}
                   target="_blank" rel="noopener noreferrer"
                   className="mt-4 flex items-center justify-center gap-2 border-2 border-violet-200 text-violet-700 hover:bg-violet-50 rounded-xl px-4 py-2.5 text-sm font-semibold transition">
-                  {"\u{1F5FA}\uFE0F"} View Warehouse on Maps &nearr;
+                  🗺️ View Warehouse on Maps ↗
                 </a>
               </div>
             </div>
 
             <p className="text-xs text-slate-400 text-center pb-4 font-mono">
-              Billable = max(actual, L&times;W&times;H&divide;5000) &middot; Total = &#8377;10 + rate &times; dist &times; weight
-              {result.breakdown.expressCharge > 0 ? " + \u20B91.2 \u00D7 weight (express)" : ""}
+              Billable = max(actual, L×W×H÷5000) · Total = ₹10 + rate × dist × weight
+              {result.breakdown.expressCharge > 0 ? " + ₹1.2 × weight (express)" : ""}
             </p>
           </div>
         )}
@@ -477,10 +477,10 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-slate-200 bg-white py-6">
         <div className="max-w-5xl mx-auto px-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
-          <span>&copy; 2026 Lalaji &mdash; B2B Kirana Marketplace &middot; Shipping Estimator v1.0</span>
+          <span>© 2026 Lalaji — B2B Kirana Marketplace · Shipping Estimator v1.0</span>
           <div className="flex items-center gap-3">
-            <a href="/docs" target="_blank" className="hover:text-violet-600 transition">API Docs &nearr;</a>
-            <a href="/api/openapi.yaml" target="_blank" className="hover:text-violet-600 transition font-mono">openapi.yaml &nearr;</a>
+            <a href={`${API_URL}/docs`} target="_blank" className="hover:text-violet-600 transition">API Docs ↗</a>
+            <a href={`${API_URL}/api/openapi.yaml`} target="_blank" className="hover:text-violet-600 transition font-mono">openapi.yaml ↗</a>
           </div>
         </div>
       </footer>
