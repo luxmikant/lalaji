@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
@@ -90,32 +89,17 @@ func main() {
 	gin.SetMode(cfg.Server.GinMode)
 	r := gin.New()
 
-	// CORS — allow all origins for public API.
-	// For production, restrict via CORS_ALLOWED_ORIGINS env (comma-separated);
-	// if unset, defaults to wide-open (suitable for a demo/assignment deployment).
-	var allowedOrigins []string
-	if cfg.Server.CORSOrigins != "" {
-		for _, o := range strings.Split(cfg.Server.CORSOrigins, ",") {
-			if o = strings.TrimSpace(o); o != "" {
-				allowedOrigins = append(allowedOrigins, o)
-			}
-		}
-	}
-
-	corsConf := cors.Config{
+	// CORS — allow all origins for public API (demo mode).
+	// This is a public shipping estimator, so wide-open CORS is acceptable.
+	// For production, use AllowOriginFunc with domain validation instead.
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Request-ID"},
 		ExposeHeaders:    []string{"X-Request-ID"},
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
-	}
-	if len(allowedOrigins) > 0 {
-		corsConf.AllowOrigins = allowedOrigins
-	} else {
-		// No restriction — allow every origin (Vercel previews, localhost, etc.)
-		corsConf.AllowAllOrigins = true
-	}
-	r.Use(cors.New(corsConf))
+	}))
 
 	// Global middleware
 	r.Use(middleware.RequestID())
