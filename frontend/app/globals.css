@@ -2,4 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* ── Fonts ─────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Custom keyframes ──────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0.45); }
+  50%       { box-shadow: 0 0 0 10px rgba(139,92,246,0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-9px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: calc(400px + 100%) 0; }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes borderRun {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+/* ── Utility classes ───────────────────────────────────────── */
+.animate-fade-up     { animation: fadeUp 0.5s ease both; }
+.animate-fade-in     { animation: fadeIn 0.4s ease both; }
+.animate-slide-right { animation: slideInRight 0.5s ease both; }
+.animate-float       { animation: float 3.5s ease-in-out infinite; }
+.animate-count-up    { animation: countUp 0.65s cubic-bezier(0.34,1.56,0.64,1) both; }
+.glow-selected       { animation: pulseGlow 2s ease-in-out infinite; }
+
+.gradient-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #312e81 70%, #0d1117 100%);
+  background-size: 300% 300%;
+  animation: gradientShift 10s ease infinite;
+}
+
+.shimmer-card {
+  background: linear-gradient(90deg, #f8f8ff 25%, #ede9fe 50%, #f8f8ff 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* Staggered animation delays for card grids */
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.10s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.20s; }
+.stagger-5 { animation-delay: 0.25s; }

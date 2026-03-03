@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jambotails/shipping-service/internal/services"
+	apperrors "github.com/jambotails/shipping-service/pkg/errors"
 	"github.com/jambotails/shipping-service/pkg/response"
 	"github.com/jambotails/shipping-service/pkg/validator"
 )
@@ -69,6 +70,11 @@ func (h *ShippingHandler) GetCharge(c *gin.Context) {
 		c.Request.Context(), warehouseID, customerID, productID, deliverySpeed,
 	)
 	if svcErr != nil {
+		// Unwrap typed AppError to return the correct HTTP status (400/404/422/503).
+		if appErr, ok := apperrors.AsAppError(svcErr); ok {
+			c.JSON(appErr.HTTPStatus, response.Error(c, appErr.HTTPStatus, appErr.Message))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, response.Error(c, http.StatusInternalServerError, svcErr.Error()))
 		return
 	}
@@ -104,6 +110,11 @@ func (h *ShippingHandler) CalculateFull(c *gin.Context) {
 		c.Request.Context(), req.SellerID, req.CustomerID, req.ProductID, req.DeliverySpeed,
 	)
 	if svcErr != nil {
+		// Unwrap typed AppError to return the correct HTTP status (400/404/422/503).
+		if appErr, ok := apperrors.AsAppError(svcErr); ok {
+			c.JSON(appErr.HTTPStatus, response.Error(c, appErr.HTTPStatus, appErr.Message))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, response.Error(c, http.StatusInternalServerError, svcErr.Error()))
 		return
 	}

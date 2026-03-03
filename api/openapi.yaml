@@ -1,0 +1,568 @@
+openapi: 3.0.3
+info:
+  title: Lalaji — B2B Kirana Shipping Estimator API
+  description: |
+    REST API for calculating shipping charges in a B2B e-commerce marketplace.
+    Kirana store owners can use this to find the nearest warehouse for a seller and
+    estimate shipping costs including transport mode selection and delivery speed surcharges.
+
+    ## How shipping charge is calculated
+    1. **Find nearest warehouse** — given seller location, Haversine distance to all active warehouses
+    2. **Transport mode** — selected by distance band (Mini Van: 0–100 km · Truck: 100–500 km · Aeroplane: 500+ km)
+    3. **Billable weight** — `max(actual_weight, L×W×H÷5000)`
+    4. **Total charge** — `₹10 base + (rate × distance × billable_weight) [+ ₹1.2/kg for express]`
+
+    ## Error handling
+    All errors are returned in the standard response envelope with a machine-readable `errorCode`.
+  version: 1.0.0
+  contact:
+    name: Lalaji Engineering
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: https://your-render-app.onrender.com
+    description: Production (Render)
+
+tags:
+  - name: Health
+    description: Service health and readiness
+  - name: Warehouse
+    description: Warehouse lookup operations
+  - name: Shipping
+    description: Shipping charge calculation
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Checks database and Redis connectivity. Used by container orchestration for readiness probes.
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service healthy (both DB and Redis are up)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+                details:
+                  database: ok
+                  redis: ok
+        "200-degraded":
+          description: Service degraded (Redis unavailable but DB is up — requests still served)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: degraded
+                details:
+                  database: ok
+                  redis: unavailable
+
+  /api/v1/warehouse/nearest:
+    get:
+      tags: [Warehouse]
+      summary: Get nearest warehouse for a seller
+      description: |
+        Given a seller ID and product ID, returns the active warehouse that is geographically
+        nearest to the seller's dispatch location (Haversine great-circle distance).
+
+        The product must belong to the specified seller.
+      operationId: getNearestWarehouse
+      parameters:
+        - name: sellerId
+          in: query
+          required: true
+          description: Unique ID of the seller (must be a positive integer)
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 1
+        - name: productId
+          in: query
+          required: true
+          description: Unique ID of the product to ship (must belong to the given seller)
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 1
+      responses:
+        "200":
+          description: Nearest warehouse found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NearestWarehouseResponse"
+              example:
+                success: true
+                requestId: "550e8400-e29b-41d4-a716-446655440000"
+                data:
+                  warehouseId: 1
+                  warehouseName: BLR_Warehouse
+                  warehouseLocation:
+                    lat: 12.99999
+                    lng: 77.58264
+                  distanceKm: 48.32
+        "400":
+          description: |
+            Missing or invalid parameters.
+            - `sellerId` or `productId` is missing
+            - Either value is not a positive integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missing_params:
+                  summary: Missing sellerId
+                  value:
+                    success: false
+                    requestId: "550e8400-e29b-41d4-a716-446655440000"
+                    error: "sellerId and productId are required query parameters"
+                invalid_id:
+                  summary: Non-integer sellerId
+                  value:
+                    success: false
+                    requestId: "550e8400-e29b-41d4-a716-446655440000"
+                    error: "sellerId must be a positive integer"
+        "404":
+          description: Seller or product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                seller_not_found:
+                  summary: Seller ID does not exist
+                  value:
+                    success: false
+                    requestId: "550e8400-e29b-41d4-a716-446655440000"
+                    error: "seller with id 999 not found or is not active"
+                product_not_found:
+                  summary: Product does not belong to seller
+                  value:
+                    success: false
+                    requestId: "550e8400-e29b-41d4-a716-446655440000"
+                    error: "product with id 5 not found for seller 1"
+        "503":
+          description: No active warehouses available on the platform
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                requestId: "550e8400-e29b-41d4-a716-446655440000"
+                error: "no active warehouses are currently available; please try again later"
+
+  /api/v1/shipping-charge:
+    get:
+      tags: [Shipping]
+      summary: Get shipping charge from a warehouse to a customer
+      description: |
+        Given a warehouse, customer, product, and delivery speed, computes the full
+        shipping charge breakdown.
+
+        The transport mode is automatically selected based on warehouse-to-customer distance:
+        - **Mini Van** (0–100 km): ₹3 per km per kg
+        - **Truck** (100–500 km): ₹2 per km per kg
+        - **Aeroplane** (500+ km): ₹1 per km per kg
+
+        If no configured transport mode covers the calculated distance, the endpoint returns 422.
+      operationId: getShippingCharge
+      parameters:
+        - name: warehouseId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 1
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 3
+        - name: customerId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 1
+        - name: deliverySpeed
+          in: query
+          required: true
+          description: "`standard` or `express`"
+          schema:
+            type: string
+            enum: [standard, express]
+            example: standard
+      responses:
+        "200":
+          description: Shipping charge calculated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShippingChargeResponse"
+              example:
+                success: true
+                requestId: "550e8400-e29b-41d4-a716-446655440000"
+                data:
+                  shippingCharge: 160.00
+                  breakdown:
+                    distanceKm: 48.32
+                    transportMode: minivan
+                    ratePerKmPerKg: 3.0
+                    billableWeightKg: 1.0
+                    baseCourierCharge: 10.0
+                    distanceCharge: 144.96
+                    expressCharge: 0.0
+                    totalCharge: 154.96
+        "400":
+          description: Missing/invalid parameters or invalid delivery speed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missing_params:
+                  value:
+                    success: false
+                    error: "warehouseId, productId, customerId, and deliverySpeed are required"
+                bad_speed:
+                  value:
+                    success: false
+                    error: "invalid deliverySpeed 'fast': must be 'standard' or 'express'"
+        "404":
+          description: Warehouse, customer, or product not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: |
+            Delivery location unsupported — no transport mode covers the distance between
+            the warehouse and the customer. This typically means the distance exceeds all
+            configured transport bands.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                requestId: "550e8400-e29b-41d4-a716-446655440000"
+                error: "no transport mode is configured for a distance of 6500.00 km; delivery to this location is not supported"
+
+  /api/v1/shipping-charge/calculate:
+    post:
+      tags: [Shipping]
+      summary: Full end-to-end shipping charge calculation
+      description: |
+        Combines warehouse lookup + shipping charge in a single call.
+        Given seller, customer, product, and delivery speed, this endpoint:
+        1. Finds the nearest warehouse to the seller
+        2. Calculates the shipping charge from that warehouse to the customer
+
+        Use this as the primary checkout-flow API.
+      operationId: calculateFullShippingCharge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculateRequest"
+            examples:
+              standard_delivery:
+                summary: Standard delivery
+                value:
+                  sellerId: 1
+                  productId: 1
+                  customerId: 1
+                  deliverySpeed: standard
+              express_delivery:
+                summary: Express delivery
+                value:
+                  sellerId: 2
+                  productId: 3
+                  customerId: 3
+                  deliverySpeed: express
+      responses:
+        "200":
+          description: Full shipping calculation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FullCalcResponse"
+              example:
+                success: true
+                requestId: "550e8400-e29b-41d4-a716-446655440000"
+                data:
+                  shippingCharge: 160.00
+                  breakdown:
+                    distanceKm: 48.32
+                    transportMode: minivan
+                    ratePerKmPerKg: 3.0
+                    billableWeightKg: 0.5
+                    baseCourierCharge: 10.0
+                    distanceCharge: 72.48
+                    expressCharge: 0.0
+                    totalCharge: 82.48
+                  nearestWarehouse:
+                    warehouseId: 1
+                    warehouseName: BLR_Warehouse
+                    warehouseLocation:
+                      lat: 12.99999
+                      lng: 77.58264
+                    distanceKm: 48.32
+        "400":
+          description: Validation error — missing/invalid body fields or invalid delivery speed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationErrorResponse"
+              examples:
+                missing_fields:
+                  summary: Required field missing
+                  value:
+                    success: false
+                    requestId: "550e8400-e29b-41d4-a716-446655440000"
+                    error: "validation failed"
+                    fields:
+                      sellerId: "required"
+                      customerId: "gt=0"
+                invalid_speed:
+                  summary: Unrecognised delivery speed
+                  value:
+                    success: false
+                    requestId: "550e8400-e29b-41d4-a716-446655440000"
+                    error: "invalid deliverySpeed 'overnight': must be 'standard' or 'express'"
+        "404":
+          description: Seller, product, customer, or warehouse not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: Delivery location not supported (distance exceeds all transport bands)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: No active warehouses available on the platform
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    LatLng:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: double
+          example: 12.99999
+        lng:
+          type: number
+          format: double
+          example: 77.58264
+
+    NearestWarehouseData:
+      type: object
+      properties:
+        warehouseId:
+          type: integer
+          format: int64
+          example: 1
+        warehouseName:
+          type: string
+          example: BLR_Warehouse
+        warehouseLocation:
+          $ref: "#/components/schemas/LatLng"
+        distanceKm:
+          type: number
+          format: double
+          description: Distance (Haversine) from seller to this warehouse in km
+          example: 48.32
+
+    Breakdown:
+      type: object
+      description: Full line-item breakdown of the shipping charge
+      properties:
+        distanceKm:
+          type: number
+          format: double
+          description: Crow-flies distance from warehouse to customer in km
+          example: 48.32
+        transportMode:
+          type: string
+          enum: [minivan, truck, aeroplane]
+          example: minivan
+        ratePerKmPerKg:
+          type: number
+          format: double
+          description: Rate applied for this transport mode (₹ per km per kg)
+          example: 3.0
+        billableWeightKg:
+          type: number
+          format: double
+          description: max(actual_weight_kg, volumetric_weight_kg)
+          example: 1.0
+        baseCourierCharge:
+          type: number
+          format: double
+          description: Fixed courier base charge (₹10)
+          example: 10.0
+        distanceCharge:
+          type: number
+          format: double
+          description: rate × distance × billable_weight
+          example: 144.96
+        expressCharge:
+          type: number
+          format: double
+          description: ₹1.2 × billable_weight for express; 0 for standard
+          example: 0.0
+        totalCharge:
+          type: number
+          format: double
+          example: 154.96
+
+    CalculateRequest:
+      type: object
+      required: [sellerId, productId, customerId, deliverySpeed]
+      properties:
+        sellerId:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 1
+        productId:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 1
+        customerId:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 1
+        deliverySpeed:
+          type: string
+          enum: [standard, express]
+          example: standard
+
+    NearestWarehouseResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        requestId:
+          type: string
+          format: uuid
+        data:
+          $ref: "#/components/schemas/NearestWarehouseData"
+
+    ShippingChargeResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        requestId:
+          type: string
+          format: uuid
+        data:
+          type: object
+          properties:
+            shippingCharge:
+              type: number
+              format: double
+              example: 154.96
+            breakdown:
+              $ref: "#/components/schemas/Breakdown"
+
+    FullCalcResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        requestId:
+          type: string
+          format: uuid
+        data:
+          type: object
+          properties:
+            shippingCharge:
+              type: number
+              format: double
+              example: 154.96
+            breakdown:
+              $ref: "#/components/schemas/Breakdown"
+            nearestWarehouse:
+              $ref: "#/components/schemas/NearestWarehouseData"
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded]
+          example: ok
+        details:
+          type: object
+          properties:
+            database:
+              type: string
+              example: ok
+            redis:
+              type: string
+              example: ok
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        requestId:
+          type: string
+          format: uuid
+        error:
+          type: string
+          example: "seller with id 999 not found or is not active"
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        requestId:
+          type: string
+          format: uuid
+        error:
+          type: string
+          example: "validation failed"
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            sellerId: required
+            customerId: "gt=0"

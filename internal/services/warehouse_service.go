@@ -2,12 +2,12 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"math"
 
 	"github.com/jambotails/shipping-service/internal/models"
 	"github.com/jambotails/shipping-service/internal/repositories"
 	"github.com/jambotails/shipping-service/internal/services/geo"
+	apperrors "github.com/jambotails/shipping-service/pkg/errors"
 )
 
 // NearestWarehouseResult holds the response data for nearest warehouse lookup.
@@ -50,22 +50,22 @@ func (s *WarehouseService) FindNearest(ctx context.Context, sellerID, productID 
 	// Validate seller exists
 	seller, err := s.sellerRepo.GetByID(ctx, sellerID)
 	if err != nil {
-		return nil, fmt.Errorf("seller not found: %w", err)
+		return nil, apperrors.NewSellerNotFoundError(sellerID)
 	}
 
 	// Validate product exists and belongs to seller
 	_, err = s.productRepo.GetByIDAndSellerID(ctx, productID, sellerID)
 	if err != nil {
-		return nil, fmt.Errorf("product not found for seller: %w", err)
+		return nil, apperrors.NewProductNotFoundError(productID, sellerID)
 	}
 
 	// Fetch all active warehouses
 	warehouses, err := s.warehouseRepo.GetAllActive(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch warehouses: %w", err)
+		return nil, apperrors.NewServiceUnavailableError("failed to fetch active warehouses: " + err.Error())
 	}
 	if len(warehouses) == 0 {
-		return nil, fmt.Errorf("no active warehouses available")
+		return nil, apperrors.NewNoActiveWarehouseError()
 	}
 
 	// Find the nearest warehouse using Haversine distance

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jambotails/shipping-service/internal/services"
+	apperrors "github.com/jambotails/shipping-service/pkg/errors"
 	"github.com/jambotails/shipping-service/pkg/response"
 )
 
@@ -49,9 +50,12 @@ func (h *WarehouseHandler) FindNearest(c *gin.Context) {
 
 	result, svcErr := h.warehouseSvc.FindNearest(c.Request.Context(), sellerID, productID)
 	if svcErr != nil {
-		c.JSON(http.StatusInternalServerError,
-			response.Error(c, http.StatusInternalServerError, svcErr.Error()),
-		)
+		// Unwrap typed AppError for the correct HTTP status code (404, 503, etc.)
+		if appErr, ok := apperrors.AsAppError(svcErr); ok {
+			c.JSON(appErr.HTTPStatus, response.Error(c, appErr.HTTPStatus, appErr.Message))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, response.Error(c, http.StatusInternalServerError, svcErr.Error()))
 		return
 	}
 

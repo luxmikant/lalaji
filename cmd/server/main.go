@@ -110,6 +110,16 @@ func main() {
 	// ── Routes ───────────────────────────────────────────────
 	r.GET("/health", healthHandler.Check)
 
+	// ── Swagger / OpenAPI ────────────────────────────────────
+	// Serve the raw OpenAPI YAML spec so tools (Postman, curl, etc.) can import it.
+	r.StaticFile("/api/openapi.yaml", "./api/openapi.yaml")
+
+	// Serve a browser-based Swagger UI (no extra dependencies — loads from CDN).
+	r.GET("/docs", func(c *gin.Context) {
+		c.Header("Content-Type", "text/html; charset=utf-8")
+		c.String(http.StatusOK, swaggerUIHTML)
+	})
+
 	v1 := r.Group("/api/v1")
 	{
 		// Optionally protect routes with JWT:
@@ -152,3 +162,42 @@ func main() {
 
 	logger.Info("server exited")
 }
+
+// swaggerUIHTML is an inline Swagger UI page that loads from a CDN.
+// Served at GET /docs — open in any browser, no extra dependencies required.
+const swaggerUIHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lalaji API — Swagger UI</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    body { margin: 0; background: #0f172a; }
+    .swagger-ui .topbar { background: #1e1b4b; }
+    .swagger-ui .topbar .download-url-wrapper input[type=text] { border-color: #7c3aed; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function () {
+      SwaggerUIBundle({
+        url: "/api/openapi.yaml",
+        dom_id: "#swagger-ui",
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+        plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+        layout: "StandaloneLayout",
+        tryItOutEnabled: true,
+        requestInterceptor: function(req) {
+          // Auto-attach X-Request-ID for tracing
+          req.headers["X-Request-ID"] = crypto.randomUUID();
+          return req;
+        }
+      });
+    };
+  </script>
+</body>
+</html>`

@@ -10,6 +10,7 @@ import (
 	"github.com/jambotails/shipping-service/internal/services/geo"
 	"github.com/jambotails/shipping-service/internal/services/pricing"
 	"github.com/jambotails/shipping-service/internal/services/transport"
+	apperrors "github.com/jambotails/shipping-service/pkg/errors"
 )
 
 // ShippingChargeResult holds the result of a shipping charge calculation.
@@ -63,25 +64,25 @@ func (s *ShippingService) CalculateCharge(
 	// Validate delivery speed
 	speed := strings.ToLower(strings.TrimSpace(deliverySpeed))
 	if speed != "standard" && speed != "express" {
-		return nil, fmt.Errorf("deliverySpeed must be 'standard' or 'express', got '%s'", deliverySpeed)
+		return nil, apperrors.NewInvalidDeliverySpeedError(deliverySpeed)
 	}
 
 	// Fetch warehouse
 	warehouse, err := s.warehouseRepo.GetByID(ctx, warehouseID)
 	if err != nil {
-		return nil, fmt.Errorf("warehouse not found: %w", err)
+		return nil, apperrors.NewWarehouseNotFoundError(warehouseID)
 	}
 
 	// Fetch customer
 	customer, err := s.customerRepo.GetByID(ctx, customerID)
 	if err != nil {
-		return nil, fmt.Errorf("customer not found: %w", err)
+		return nil, apperrors.NewCustomerNotFoundError(customerID)
 	}
 
 	// Fetch product
 	product, err := s.productRepo.GetByID(ctx, productID)
 	if err != nil {
-		return nil, fmt.Errorf("product not found: %w", err)
+		return nil, apperrors.NewProductNotFoundError(productID, 0)
 	}
 
 	// Calculate distance: warehouse → customer
@@ -97,22 +98,23 @@ func (s *ShippingService) CalculateCharge(
 		return nil, fmt.Errorf("failed to get transport rates: %w", err)
 	}
 
-	// Select transport strategy based on distance
+	// Select transport strategy based on distance.
+	// If no transport mode covers this distance, the delivery location is unsupported.
 	transportStrategy, err := transport.NewStrategy(distanceKm, rates)
 	if err != nil {
-		return nil, fmt.Errorf("failed to select transport mode: %w", err)
+		return nil, apperrors.NewDeliveryUnsupportedError(distanceKm)
 	}
 
 	// Get delivery speed config from DB
 	speedConfig, err := s.speedConfigRepo.GetBySpeed(ctx, speed)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get delivery speed config: %w", err)
+		return nil, apperrors.NewTransportConfigError(fmt.Sprintf("delivery speed config for '%s' not found", speed))
 	}
 
 	// Select pricing strategy
 	pricingStrategy, err := pricing.NewStrategy(speedConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create pricing strategy: %w", err)
+		return nil, apperrors.NewTransportConfigError("pricing strategy initialisation failed: " + err.Error())
 	}
 
 	// Calculate charge
@@ -141,16 +143,18 @@ func (s *ShippingService) CalculateFull(
 	sellerID, customerID, productID int64,
 	deliverySpeed string,
 ) (*FullCalculationResult, error) {
-	// Step 1: Find nearest warehouse for the seller
+	// Step 1: Find nearest warehouse for the seller.
+	// Errors here are already typed AppErrors (seller/product not found, no active warehouses).
 	nearestWh, err := s.warehouseSvc.FindNearest(ctx, sellerID, productID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find nearest warehouse: %w", err)
+		return nil, err // propagate typed AppError as-is
 	}
 
-	// Step 2: Calculate shipping charge from that warehouse to the customer
+	// Step 2: Calculate shipping charge from that warehouse to the customer.
+	// Errors here are already typed AppErrors (customer/product not found, unsupported distance).
 	chargeResult, err := s.CalculateCharge(ctx, nearestWh.WarehouseID, customerID, productID, deliverySpeed)
 	if err != nil {
-		return nil, fmt.Errorf("failed to calculate shipping charge: %w", err)
+		return nil, err // propagate typed AppError as-is
 	}
 
 	return &FullCalculationResult{
