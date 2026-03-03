@@ -29,11 +29,11 @@ func (r *customerRepo) GetByID(ctx context.Context, id int64) (*models.Customer,
 		WHERE id = $1`
 
 	c := &models.Customer{}
-	var email, gst, slot sql.NullString
+	var email, gst, slot, addr, city, state, pincode sql.NullString
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&c.ID, &c.Name, &c.OwnerName, &c.Phone, &email, &gst,
 		&c.StoreType, &c.CreditLimit, &slot, &c.Lat, &c.Lng,
-		&c.AddressLine1, &c.City, &c.State, &c.Pincode,
+		&addr, &city, &state, &pincode,
 		&c.IsActive, &c.CreatedAt, &c.UpdatedAt,
 	)
 	if err == sql.ErrNoRows {
@@ -51,6 +51,18 @@ func (r *customerRepo) GetByID(ctx context.Context, id int64) (*models.Customer,
 	}
 	if slot.Valid {
 		c.PreferredDeliverySlot = slot.String
+	}
+	if addr.Valid {
+		c.AddressLine1 = addr.String
+	}
+	if city.Valid {
+		c.City = city.String
+	}
+	if state.Valid {
+		c.State = state.String
+	}
+	if pincode.Valid {
+		c.Pincode = pincode.String
 	}
 
 	return c, nil
