@@ -28,10 +28,10 @@ func (r *sellerRepo) GetByID(ctx context.Context, id int64) (*models.Seller, err
 		WHERE id = $1`
 
 	s := &models.Seller{}
-	var email, gst sql.NullString
+	var email, gst, addr sql.NullString
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&s.ID, &s.Name, &s.OwnerName, &s.Phone, &email, &gst,
-		&s.BusinessType, &s.Lat, &s.Lng, &s.AddressLine1,
+		&s.BusinessType, &s.Lat, &s.Lng, &addr,
 		&s.City, &s.State, &s.Pincode,
 		&s.Rating, &s.IsVerified, &s.IsActive,
 		&s.CreatedAt, &s.UpdatedAt,
@@ -48,6 +48,9 @@ func (r *sellerRepo) GetByID(ctx context.Context, id int64) (*models.Seller, err
 	}
 	if gst.Valid {
 		s.GSTNumber = gst.String
+	}
+	if addr.Valid {
+		s.AddressLine1 = addr.String
 	}
 
 	return s, nil
