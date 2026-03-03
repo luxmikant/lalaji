@@ -90,24 +90,32 @@ func main() {
 	gin.SetMode(cfg.Server.GinMode)
 	r := gin.New()
 
-	// CORS — allow Vercel preview + production domains and localhost dev
-	corsOrigins := []string{"http://localhost:3000"}
+	// CORS — allow all origins for public API.
+	// For production, restrict via CORS_ALLOWED_ORIGINS env (comma-separated);
+	// if unset, defaults to wide-open (suitable for a demo/assignment deployment).
+	var allowedOrigins []string
 	if cfg.Server.CORSOrigins != "" {
 		for _, o := range strings.Split(cfg.Server.CORSOrigins, ",") {
 			if o = strings.TrimSpace(o); o != "" {
-				corsOrigins = append(corsOrigins, o)
+				allowedOrigins = append(allowedOrigins, o)
 			}
 		}
 	}
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     corsOrigins,
-		AllowWildcard:    true,
+
+	corsConf := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-Request-ID"},
 		ExposeHeaders:    []string{"X-Request-ID"},
 		AllowCredentials: false,
 		MaxAge:           12 * time.Hour,
-	}))
+	}
+	if len(allowedOrigins) > 0 {
+		corsConf.AllowOrigins = allowedOrigins
+	} else {
+		// No restriction — allow every origin (Vercel previews, localhost, etc.)
+		corsConf.AllowAllOrigins = true
+	}
+	r.Use(cors.New(corsConf))
 
 	// Global middleware
 	r.Use(middleware.RequestID())
